@@ -14,8 +14,6 @@ http.interceptors.request.use(function (config) {
   const token = localStorage.getItem('h5_token');
   // 不需要 token 的接口，直接返回 config
   const whiteUrl = ['/login']
-  // 确保 config.url 是一个字符串
-  const url = config.url ? config.url : '';
   if (token && !whiteUrl.includes(url)) {
     config.headers['h-token'] = token;
   }
@@ -29,12 +27,13 @@ http.interceptors.request.use(function (config) {
 http.interceptors.response.use(function (response) {
   // 对接口异常的数据，给用户提示
   if (response.data.code === -1) {
+    ElMessage.warning(response.data.message);
   }
   if (response.data.code === -2) {
     localStorage.removeItem('h5_token');
     localStorage.removeItem('h5_userInfo');
     // ElMessage.error('登录信息已过期，请重新登录');
-    window.location.href = window.location.origin;
+    window.location.href = window.location.origin ;
   }
   return response;
 }, function (error) {
