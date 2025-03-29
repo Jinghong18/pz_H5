@@ -12,6 +12,10 @@ export default {
     h5Companion () {
         return request.get('/h5/companion')
     },
+    // 陪诊师列表 /companion/list
+    h5CompanionList (data) {
+        return request.get('/companion/list', { params: data })
+    },
     // 提交订单
     createOrder (data) {
         return request.post('/createOrder', data)

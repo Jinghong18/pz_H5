@@ -31,6 +31,7 @@ http.interceptors.request.use(function (config) {
   const whiteUrl = ['/login'];
   if (token && !whiteUrl.some(url => config.url.includes(url))) {
     config.headers['h-token'] = token;
+    config.headers['x-token'] = '10ae9c772c7b7449f900d9568c2a2b5a';
   }
   return config;
 }, function (error) {

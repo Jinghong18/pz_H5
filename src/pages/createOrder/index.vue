@@ -108,8 +108,7 @@
         <van-button type="primary" block @click="submit" class="submit" size="large">提交订单</van-button>
 
         <!-- 支付二维码弹窗 -->
-        <van-dialog v-model:show="showCode"
-        :show-confirm-button="false"  >
+        <van-dialog v-model:show="showCode" :show-confirm-button="false">
             <van-icon name="cross" class="close" @click="closeCode" />
             <div>微信支付</div>
             <van-image :src="codeImg" width="150" height="150" />
@@ -133,10 +132,24 @@ const createInfo = reactive({
     service: {}
 })
 
+const companionInfo = reactive({
+    list: [],
+})
+
+
+const paginationData = reactive({
+    pageNum: 1,
+    pageSize: 10
+});
+
 onMounted(async () => {
     const { data } = await proxy.$api.h5Companion()
     Object.assign(createInfo, data.data)
-    // console.log(createInfo)
+
+    // 获取陪诊师列表数据
+    const { data: companionData } = await proxy.$api.h5CompanionList(paginationData)
+    Object.assign(companionInfo, companionData.data)
+    // console.log(companionInfo.list, 'companionInf.list')
 })
 
 // 点击返回
@@ -157,7 +170,7 @@ const HospColumns = computed(() => {
 })
 // 选择医院
 const HospOnConfirm = (item) => {
-    // console.log(item)
+    // console.log(item, 'item')
     form.hospital_name = item.selectedOptions[0].text
     form.hospital_id = item.selectedOptions[0].value
     showHospital.value = false
@@ -179,12 +192,13 @@ const showTimeConfirm = (item) => {
 const showCompanion = ref(false)
 // 数据组装
 const CompanionColumns = computed(() => {
-    return createInfo.companion.map(item => {
+    return companionInfo.list.map(item => {
         return { text: item.name, value: item.id }
     })
 })
 const companionName = ref('')
 const showCompanionConfirm = (item) => {
+    // console.log(item, 'item')
     form.companion_id = item.selectedOptions[0].value
     companionName.value = item.selectedOptions[0].text
     showCompanion.value = false
@@ -202,7 +216,8 @@ const submit = async () => {
         'starttime'
     ]
     for (const i in params) {
-        if (!form[i]) {
+        if (form[i] === '') {
+            console.log('请填写' + params[i])
             showNotify({ message: '请把每一项信息填写完整' });
             return
         }
