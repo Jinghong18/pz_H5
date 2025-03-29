@@ -15,5 +15,13 @@ export default {
     // 提交订单
     createOrder (data) {
         return request.post('/createOrder', data)
+    },
+    // 订单列表
+    orderList (data) {
+        return request.get('/order/list', { params: data })
+    },
+    // 订单详情
+    orderDetail (params) {
+        return request.get('/order/detail', { params: params })
     }
 }
