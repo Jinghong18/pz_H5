@@ -14,7 +14,7 @@ http.interceptors.request.use(function (config) {
   const token = localStorage.getItem('h5_token');
   // 不需要 token 的接口，直接返回 config
   const whiteUrl = ['/login']
-  if (token && !whiteUrl.includes(url)) {
+  if (token && !whiteUrl.includes(config.url)) {
     config.headers['h-token'] = token;
   }
   return config;

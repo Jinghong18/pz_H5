@@ -60,11 +60,11 @@
         <van-cell-group class="cell">
             <van-cell>
                 <template #title>
-                    陪诊师 
+                    陪诊师
                 </template>
                 <template #default>
                     <div @click="showCompanion = true">
-                        
+                        {{ companionName || '请选择陪诊师' }}
                         <van-icon name="arrow" />
                     </div>
                 </template>
@@ -72,8 +72,49 @@
         </van-cell-group>
 
         <van-popup v-model:show="showCompanion" position="bottom" :style="{ height: '30%' }">
-            <van-picker :columns="CompanionColumns" @confirm="HospOnConfirm" @cancel="showHospital = false" />
+            <van-picker :columns="CompanionColumns" @confirm="showCompanionConfirm" @cancel="showCompanion = false" />
         </van-popup>
+
+        <!-- 选择接送地址 -->
+        <van-cell-group class="cell">
+            <van-cell>
+                <template #title>
+                    接送地址
+                </template>
+                <template #default>
+                    <van-field class="text" input-align="right" v-model="form.receiveAddress" placeholder="请填写接送地址" />
+                </template>
+            </van-cell>
+        </van-cell-group>
+
+        <!-- 联系电话 -->
+        <van-cell-group class="cell">
+            <van-cell>
+                <template #title>
+                    联系电话
+                </template>
+                <template #default>
+                    <van-field class="text" input-align="right" v-model="form.tel" placeholder="请填写联系电话" />
+                </template>
+            </van-cell>
+        </van-cell-group>
+
+        <!-- 服务需求(备注) -->
+        <van-cell-group class="cell" title="服务需求">
+            <van-field class="text" style="height: 100px;" v-model="form.demand" placeholder="请简单描述您要就诊的科室..." />
+        </van-cell-group>
+
+        <!-- 提交按钮 -->
+        <van-button type="primary" block @click="submit" class="submit" size="large">提交订单</van-button>
+
+        <!-- 支付二维码弹窗 -->
+        <van-dialog v-model:show="showCode"
+        :show-confirm-button="false"  >
+            <van-icon name="cross" class="close" @click="closeCode" />
+            <div>微信支付</div>
+            <van-image :src="codeImg" width="150" height="150" />
+            <div>请使用微信扫码支付</div>
+        </van-dialog>
     </div>
 </template>
 
@@ -81,6 +122,7 @@
 import { ref, reactive, getCurrentInstance, onMounted, computed } from "vue";
 import { useRouter } from 'vue-router'
 import StatusBar from '../../components/statusBar.vue'
+import Qrcode from 'qrcode'
 
 const { proxy } = getCurrentInstance();
 const router = useRouter()
@@ -135,8 +177,51 @@ const showTimeConfirm = (item) => {
 
 // 选择陪诊师
 const showCompanion = ref(false)
-const showCompanionConfirm = () => {}
+// 数据组装
+const CompanionColumns = computed(() => {
+    return createInfo.companion.map(item => {
+        return { text: item.name, value: item.id }
+    })
+})
+const companionName = ref('')
+const showCompanionConfirm = (item) => {
+    form.companion_id = item.selectedOptions[0].value
+    companionName.value = item.selectedOptions[0].text
+    showCompanion.value = false
+}
 
+// 提交订单
+const submit = async () => {
+    const params = [
+        'hospital_id',
+        'hospital_name',
+        'demand',
+        'companion_id',
+        'receiveAddress',
+        'tel',
+        'starttime'
+    ]
+    for (const i in params) {
+        if (!form[i]) {
+            showNotify({ message: '请把每一项信息填写完整' });
+            return
+        }
+    }
+    const { data: orderRes } = await proxy.$api.createOrder(form)
+    // console.log(orderRes)
+    Qrcode.toDataURL(orderRes.data.wx_code).then((url) => {
+        showCode.value = true
+        codeImg.value = url
+    })
+}
+
+// 支付二维码弹窗
+const showCode = ref(false)
+const codeImg = ref('')
+const closeCode = () => {
+    showCode.value = false
+    router.push('/order')
+}
 </script>
 
 <style scoped lang="less">
@@ -180,7 +265,7 @@ const showCompanionConfirm = () => {}
     background-size: 20px;
 }
 
-.sumbit {
+.submit {
     position: absolute;
     bottom: 0;
 }
