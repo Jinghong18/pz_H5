@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, getCurrentInstance, onMounted } from "vue";
+import { ref, reactive, getCurrentInstance, onMounted, defineProps } from "vue";
 const { proxy } = getCurrentInstance();
 const { item } = defineProps(["item"]);
 </script>

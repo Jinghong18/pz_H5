@@ -5,7 +5,7 @@ import { VantResolver } from '@vant/auto-import-resolver';
 
 export default {
   server: {
-    port: 4500
+    port: 5500
   },
   plugins: [
     vue(),
