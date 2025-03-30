@@ -18,7 +18,7 @@
                 </div>
                 <div class="text3">
                     <van-button type="success" @click="showCode = true">
-                        立即支付(0.5元)
+                        立即支付(0.01元)
                     </van-button>
                 </div>
             </div>

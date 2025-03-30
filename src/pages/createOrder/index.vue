@@ -112,7 +112,7 @@
             <van-icon name="cross" class="close" @click="closeCode" />
             <div>微信支付</div>
             <van-image :src="codeImg" width="150" height="150" />
-            <div>请使用微信扫码支付</div>
+            <div>请使用本人微信扫码支付</div>
         </van-dialog>
     </div>
 </template>
